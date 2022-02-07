@@ -65,6 +65,7 @@ async def adb(message: types.Message):
     else:
         text = message.get_args()
         try:
+            assert '.' not in text, 'Should use , for decimal separator instead'
             daily_budget = locale.atof(text)
             gs.set_daily_budget(daily_budget)
             str_daily_budget = locale.format_string('%.4f', gs.get_daily_budget())
@@ -90,10 +91,12 @@ async def brk(message: types.Message):
     else:
         text = message.get_args()
         try:
+            assert '.' not in text, 'Should use , for decimal separator instead'
             budget = locale.atof(text)
             gs.use(budget)
+            str_budget = locale.format_string('%.4f', budget)
             str_remaining_today = locale.format_string('%.4f', gs.get_remaining_today())
-            await message.answer(f'Du brukte {budget:.4f}. Dagens gjenstående beløp er {str_remaining_today}.')
+            await message.answer(f'Du brukte {str_budget}. Dagens gjenstående beløp er {str_remaining_today}.')
         except Exception:
             await message.answer('Feil. Bruk: `/brk 3,95`', parse_mode='Markdown')
 
