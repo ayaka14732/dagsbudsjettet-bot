@@ -119,6 +119,7 @@ async def brk(message: types.Message):
         await message.answer('Feil. Denne boten er designet for kun én bruker.')
     else:
         text = message.get_args()
+        text = text.split(' ', 1)[0]  # use the first argument only
         try:
             assert '.' not in text, 'Should use , for decimal separator instead'
             budget = locale.atof(text)
