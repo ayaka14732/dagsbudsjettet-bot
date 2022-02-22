@@ -58,7 +58,6 @@ async def start(message: types.Message):
 `/fdb`: Få dagsbudsjett.
 `/adg 3,52`: Angi dagens gjenstående beløp.
 `/fdg`: Få dagens gjenstående beløp.
-`/brk 3,95`: Bruk et bestemt beløp.
 `/tnd`: Gå til neste dag.
 `/nul`: Tilbakestille.''', parse_mode='Markdown')
 
@@ -113,23 +112,6 @@ async def fdg(message: types.Message):
         str_remaining_today = locale.format_string('%.4f', gs.get_remaining_today())
         await message.answer(f'Dagens gjenstående beløp er {str_remaining_today}.')
 
-@dp.message_handler(commands=['brk'])
-async def brk(message: types.Message):
-    if message.from_user.id != USER_ID:
-        await message.answer('Feil. Denne boten er designet for kun én bruker.')
-    else:
-        text = message.get_args()
-        text = text.split(' ', 1)[0]  # use the first argument only
-        try:
-            assert '.' not in text, 'Should use , for decimal separator instead'
-            budget = locale.atof(text)
-            gs.use(budget)
-            str_budget = locale.format_string('%.4f', budget)
-            str_remaining_today = locale.format_string('%.4f', gs.get_remaining_today())
-            await message.answer(f'Du brukte {str_budget}. Dagens gjenstående beløp er {str_remaining_today}.')
-        except Exception:
-            await message.answer('Feil. Bruk: `/brk 3,95`', parse_mode='Markdown')
-
 @dp.message_handler(commands=['tnd'])
 async def tnd(message: types.Message):
     if message.from_user.id != USER_ID:
@@ -146,6 +128,23 @@ async def nul(message: types.Message):
     else:
         gs.reset()
         await message.answer(f'Tilbakestillingen var vellykket.')
+
+@dp.message_handler()
+async def brk(message: types.Message):
+    if message.from_user.id != USER_ID:
+        await message.answer('Feil. Denne boten er designet for kun én bruker.')
+    else:
+        text = message.text
+        text = text.split(' ', 1)[0]  # use the first argument only
+        try:
+            assert '.' not in text, 'Should use , for decimal separator instead'
+            budget = locale.atof(text)
+            gs.use(budget)
+            str_budget = locale.format_string('%.4f', budget)
+            str_remaining_today = locale.format_string('%.4f', gs.get_remaining_today())
+            await message.answer(f'Du brukte {str_budget}. Dagens gjenstående beløp er {str_remaining_today}.')
+        except Exception:
+            pass
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
